@@ -19,11 +19,20 @@ public class IznajmljivanjaController : ControllerBase
     }
 
     [HttpGet("iznajmljivanja")]
-    public async Task<ActionResult> Get(int id)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetById(int id)
     {
         if (id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var iznajmljivanje = await _context.Iznajmljivanja
@@ -32,7 +41,13 @@ public class IznajmljivanjaController : ControllerBase
                                 .FirstOrDefaultAsync(x => x.Id == id);
         if (iznajmljivanje == null)
         {
-            return NotFound("Iznajmljivanje ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Iznajmljivanje ne postoji",
+                detail: "Ne postoji iznajmljivanje sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         var response = new IznajmljivanjeResponse
@@ -63,16 +78,32 @@ public class IznajmljivanjaController : ControllerBase
     }
 
     [HttpPost("iznajmljivanja")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> Create([FromBody] CreateIznajmljivanjeRequest iznajmljivanje)
     {
         if (iznajmljivanje.AutomobilId < 1)
         {
-            return BadRequest("Nevalidan AutomobilId.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "AutomobilId ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         if (iznajmljivanje.KorisnikId < 1)
         {
-            return BadRequest("Nevalidan KorisnikId.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "KorisnikId ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var automobil = await _context.Automobili
@@ -80,12 +111,24 @@ public class IznajmljivanjaController : ControllerBase
 
         if (automobil == null)
         {
-            return NotFound("Automobil ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Automobil nije pronadjen",
+                detail: "Ne postoji automobil sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         if (automobil.TrenutnoIznajmljen == true)
         {
-            return BadRequest("Automobil je vec iznajmljen.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Automobil je vec iznajmljen",
+                detail: "Automobil sa zadatim Id-jem je vec iznajmljen",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var korisnik = await _context.Korisnici
@@ -93,7 +136,13 @@ public class IznajmljivanjaController : ControllerBase
 
         if (korisnik == null)
         {
-            return NotFound("Korisnik ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
 
@@ -113,7 +162,13 @@ public class IznajmljivanjaController : ControllerBase
 
         if (result == 0)
         {
-            return BadRequest("Iznajmljivanje nije sacuvano.");
+            return Problem
+            (
+                type: "Server Error",
+                title: "Greska pri cuvanju podataka",
+                detail: "Iznajmljivanje nije sacuvan",
+                statusCode: StatusCodes.Status500InternalServerError
+            );
         }
 
         var response = new IznajmljivanjeResponse
@@ -140,25 +195,46 @@ public class IznajmljivanjaController : ControllerBase
             BrojDana = novoIznajmljivanje.BrojDana
         };
 
-        return Ok(response);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpPut("iznajmljivanja")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Update([FromBody] UpdateIznajmljivanjeRequest iznajmljivanje)
     {
         if (iznajmljivanje.Id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         if (iznajmljivanje.AutomobilId < 1)
         {
-            return BadRequest("Nevalidan AutomobilId.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "AutomobilId ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         if (iznajmljivanje.KorisnikId < 1)
         {
-            return BadRequest("Nevalidan KorisnikId.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "KorisnikId ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var postojeceIznajmljivanje = await _context.Iznajmljivanja
@@ -167,24 +243,48 @@ public class IznajmljivanjaController : ControllerBase
                                         .FirstOrDefaultAsync(x => x.Id == iznajmljivanje.Id);
         if (postojeceIznajmljivanje == null)
         {
-            return NotFound("Iznajmljivanje ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Iznajmljivanje ne postoji",
+                detail: "Ne postoji iznajmljivanje sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         var automobil = await _context.Automobili.FirstOrDefaultAsync(x => x.Id == iznajmljivanje.AutomobilId);
         if (automobil == null)
         {
-            return NotFound("Automobil ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Automobil nije pronadjen",
+                detail: "Ne postoji automobil sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         if (automobil.TrenutnoIznajmljen == true && automobil.Id != postojeceIznajmljivanje.Automobil!.Id)
         {
-            return BadRequest("Automobil je vec iznajmljen.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Automobil je vec iznajmljen",
+                detail: "Automobil sa zadatim Id-jem je vec iznajmljen",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var korisnik = await _context.Korisnici.FirstOrDefaultAsync(x => x.Id == iznajmljivanje.KorisnikId);
         if (korisnik == null)
         {
-            return NotFound("Korisnik ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         automobil.TrenutnoIznajmljen = true;
@@ -223,11 +323,20 @@ public class IznajmljivanjaController : ControllerBase
     }
 
     [HttpDelete("iznajmljivanja/{id}")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Delete(int id)
     {
         if (id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var iznajmljivanje = await _context.Iznajmljivanja
@@ -235,7 +344,13 @@ public class IznajmljivanjaController : ControllerBase
                                     .FirstOrDefaultAsync(x => x.Id == id);
         if (iznajmljivanje == null)
         {
-            return NotFound("Iznajmljivanje ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Iznajmljivanje ne postoji",
+                detail: "Ne postoji iznajmljivanje sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         iznajmljivanje.Automobil!.TrenutnoIznajmljen = false;

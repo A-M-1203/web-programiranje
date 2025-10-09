@@ -1,3 +1,4 @@
+using Azure.Core;
 using Januar2025.Models;
 using Januar2025.Requests.AutomobilRequests;
 using Januar2025.Responses.AutomobilResponses;
@@ -17,6 +18,7 @@ public class AutomobiliController : ControllerBase
     }
 
     [HttpGet("automobili")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAll(
         [FromQuery] int? kilometraza,
         [FromQuery] int? brojSedista,
@@ -67,17 +69,27 @@ public class AutomobiliController : ControllerBase
     }
 
     [HttpGet("automobili/modeli")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllModels()
     {
         return Ok(await _context.Automobili.Select(x => x.Model).Distinct().ToListAsync());
     }
 
     [HttpGet("automobili/{id}")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetById(int id)
     {
-        if (id < 0)
+        if (id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1.",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var automobil = await _context.Automobili
@@ -87,7 +99,13 @@ public class AutomobiliController : ControllerBase
 
         if (automobil == null)
         {
-            return NotFound("Automobil ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Automobil nije pronadjen",
+                detail: "Nepostoji automobil sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         var response = new AutomobilResponse
@@ -118,6 +136,8 @@ public class AutomobiliController : ControllerBase
     }
 
     [HttpPost("automobili")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> Create([FromBody] CreateAutomobilRequest automobil)
     {
         Automobil noviAutomobil = new()
@@ -134,7 +154,13 @@ public class AutomobiliController : ControllerBase
         int result = await _context.SaveChangesAsync();
         if (result == 0)
         {
-            return BadRequest("Automobil nije sacuvan.");
+            return Problem
+            (
+                type: "Server Error",
+                title: "Greska pri cuvanju podataka",
+                detail: "Automobil nije sacuvan",
+                statusCode: StatusCodes.Status500InternalServerError
+            );
         }
 
         var response = new AutomobilResponse
@@ -152,11 +178,20 @@ public class AutomobiliController : ControllerBase
     }
 
     [HttpPut("automobili")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Update([FromBody] UpdateAutomobilRequest automobil)
     {
-        if (automobil.Id < 0)
+        if (automobil.Id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var postojeciAutomobil = await _context.Automobili
@@ -165,7 +200,13 @@ public class AutomobiliController : ControllerBase
                                         .FirstOrDefaultAsync(x => x.Id == automobil.Id);
         if (postojeciAutomobil == null)
         {
-            return NotFound("Automobil ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Automobil nije pronadjen",
+                detail: "Ne postoji automobil sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         postojeciAutomobil.Model = automobil.Model;
@@ -205,11 +246,20 @@ public class AutomobiliController : ControllerBase
     }
 
     [HttpDelete("automobili/{id}")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Delete(int id)
     {
-        if (id < 0)
+        if (id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var automobil = await _context.Automobili
@@ -218,7 +268,13 @@ public class AutomobiliController : ControllerBase
 
         if (automobil == null)
         {
-            return NotFound("Automobil ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Automobil nije pronadjen",
+                detail: "Ne postoji automobil sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         foreach (var iznajmljivanje in automobil.Iznajmljivanja)

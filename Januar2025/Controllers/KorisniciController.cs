@@ -18,11 +18,20 @@ public class KorisniciController : ControllerBase
     }
 
     [HttpGet("korisnici/{id}")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetById(int id)
     {
-        if (id < 0)
+        if (id < 1)
         {
-            return BadRequest("Nevalidan Id");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var korisnik = await _context.Korisnici
@@ -32,7 +41,13 @@ public class KorisniciController : ControllerBase
 
         if (korisnik == null)
         {
-            return NotFound("Korisnik ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         var response = new KorisnikResponse
@@ -63,6 +78,8 @@ public class KorisniciController : ControllerBase
     }
 
     [HttpPost("korisnici")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> Create([FromBody] CreateKorisnikRequest korisnik)
     {
         Korisnik noviKorisnik = new()
@@ -78,7 +95,13 @@ public class KorisniciController : ControllerBase
 
         if (result == 0)
         {
-            return BadRequest("Korisnik nije sacuvan.");
+            return Problem
+            (
+                type: "Server Error",
+                title: "Greska pri cuvanju podataka",
+                detail: "Korisnik nije sacuvan",
+                statusCode: StatusCodes.Status500InternalServerError
+            );
         }
 
         var response = new KorisnikResponse
@@ -94,11 +117,20 @@ public class KorisniciController : ControllerBase
     }
 
     [HttpPut("korisnici")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Update([FromBody] UpdateKorisnikRequest korisnik)
     {
-        if (korisnik.Id < 0)
+        if (korisnik.Id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var postojeciKorisnik = await _context.Korisnici
@@ -107,7 +139,13 @@ public class KorisniciController : ControllerBase
                                         .FirstOrDefaultAsync(x => x.Id == korisnik.Id);
         if (postojeciKorisnik == null)
         {
-            return NotFound("Korisnik ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         postojeciKorisnik.Ime = korisnik.Ime;
@@ -145,11 +183,20 @@ public class KorisniciController : ControllerBase
     }
 
     [HttpDelete("korisnici/{id}")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Delete(int id)
     {
-        if (id < 0)
+        if (id < 1)
         {
-            return BadRequest("Nevalidan Id.");
+            return Problem
+            (
+                type: "Bad Request",
+                title: "Nevalidan Id",
+                detail: "Id ne moze da bude manji od 1",
+                statusCode: StatusCodes.Status400BadRequest
+            );
         }
 
         var korisnik = await _context.Korisnici
@@ -158,7 +205,13 @@ public class KorisniciController : ControllerBase
                                 .FirstOrDefaultAsync(x => x.Id == id);
         if (korisnik == null)
         {
-            return NotFound("Korisnik ne postoji.");
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim Id-jem",
+                statusCode: StatusCodes.Status404NotFound
+            );
         }
 
         foreach (var iznajmljivanje in korisnik.Iznajmljivanja)
