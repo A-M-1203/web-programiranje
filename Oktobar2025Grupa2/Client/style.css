@@ -1,0 +1,76 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: grey;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+}
+
+.producentska-kuca-container {
+  border: 1px solid darkgrey;
+}
+
+.label-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 15px;
+  padding-bottom: 20px;
+}
+
+.label-container label {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.menu-container {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.menu-subcontainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.menu-subcontainer select {
+  min-width: 200px;
+}
+
+.menu-subcontainer input {
+  min-width: 200px;
+}
+
+.snimi-ocenu-btn {
+  min-width: 200px;
+  margin-left: 84px;
+}
+
+.display-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.film-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.ocena-bar-chunk {
+  min-width: 30px;
+  height: 10px;
+  background-color: red;
+}

@@ -15,6 +15,7 @@ public class FilmController : ControllerBase
         _context = context;
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -32,7 +33,9 @@ public class FilmController : ControllerBase
             );
         }
 
-        var film = await _context.Filmovi.FirstOrDefaultAsync(x => x.Id == id);
+        var film = await _context.Filmovi
+                            .Include(x => x.ProducentskaKuca)
+                            .FirstOrDefaultAsync(x => x.Id == id);
         if (film == null)
         {
             return Problem
@@ -44,9 +47,22 @@ public class FilmController : ControllerBase
             );
         }
 
-        return Ok(film);
+        return Ok(new
+        {
+            Id = film.Id,
+            Naziv = film.Naziv,
+            Kategorija = film.Kategorija,
+            ProsecnaOcena = film.ProsecnaOcena,
+            BrojOcena = film.BrojOcena,
+            ProducentskaKuca = film.ProducentskaKuca == null ? null : new
+            {
+                Id = film.ProducentskaKuca.Id,
+                Naziv = film.ProducentskaKuca.Naziv
+            }
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -64,7 +80,9 @@ public class FilmController : ControllerBase
             );
         }
 
-        var film = await _context.Filmovi.FirstOrDefaultAsync(x => x.Naziv == naziv);
+        var film = await _context.Filmovi
+                            .Include(x => x.ProducentskaKuca)
+                            .FirstOrDefaultAsync(x => x.Naziv == naziv);
         if (film == null)
         {
             return Problem
@@ -76,17 +94,28 @@ public class FilmController : ControllerBase
             );
         }
 
-        return Ok(film);
+        return Ok(new
+        {
+            Id = film.Id,
+            Naziv = film.Naziv,
+            Kategorija = film.Kategorija,
+            ProsecnaOcena = film.ProsecnaOcena,
+            BrojOcena = film.BrojOcena,
+            ProducentskaKuca = film.ProducentskaKuca == null ? null : new
+            {
+                Id = film.ProducentskaKuca.Id,
+                Naziv = film.ProducentskaKuca.Naziv
+            }
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [HttpPost("filmovi")]
     public async Task<ActionResult> Create([FromBody] CreateFilmRequest request)
     {
-        var film = await _context.Filmovi
-                                .Include(x => x.ProducentskaKuca)
-                                .FirstOrDefaultAsync(x => x.Naziv == request.Naziv);
+        var film = await _context.Filmovi.FirstOrDefaultAsync(x => x.Naziv == request.Naziv);
 
         if (film != null)
         {
@@ -124,9 +153,22 @@ public class FilmController : ControllerBase
         _context.Filmovi.Add(film);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { Id = film.Id }, film);
+        return CreatedAtAction(nameof(GetById), new { Id = film.Id }, new
+        {
+            Id = film.Id,
+            Naziv = film.Naziv,
+            Kategorija = film.Kategorija,
+            ProsecnaOcena = film.ProsecnaOcena,
+            BrojOcena = film.BrojOcena,
+            ProducentskaKuca = new
+            {
+                Id = producentskaKuca.Id,
+                Naziv = producentskaKuca.Naziv
+            }
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpPut("filmovi")]
@@ -152,9 +194,22 @@ public class FilmController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(film);
+        return Ok(new
+        {
+            Id = film.Id,
+            Naziv = film.Naziv,
+            Kategorija = film.Kategorija,
+            ProsecnaOcena = film.ProsecnaOcena,
+            BrojOcena = film.BrojOcena,
+            ProducentskaKuca = film.ProducentskaKuca == null ? null : new
+            {
+                Id = film.ProducentskaKuca.Id,
+                Naziv = film.ProducentskaKuca.Naziv
+            }
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]

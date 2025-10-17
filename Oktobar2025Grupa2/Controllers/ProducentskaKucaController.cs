@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oktobar2025Grupa2.Models;
 using Oktobar2025Grupa2.Requests;
-using Oktobar2025Grupa2.Responses;
 
 namespace Oktobar2025Grupa2.Controllers;
 
@@ -16,6 +15,7 @@ public class ProducentskaKucaController : ControllerBase
         _context = context;
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,16 +48,22 @@ public class ProducentskaKucaController : ControllerBase
             );
         }
 
-        var response = new ProducentskaKucaResponse
+        return Ok(new
         {
             Id = producentskaKuca.Id,
             Naziv = producentskaKuca.Naziv,
-            Filmovi = producentskaKuca.Filmovi
-        };
-
-        return Ok(response);
+            Filmovi = producentskaKuca.Filmovi.Select(x => new
+            {
+                Id = x.Id,
+                Naziv = x.Naziv,
+                Kategorija = x.Kategorija,
+                ProsecnaOcena = x.ProsecnaOcena,
+                BrojOcena = x.BrojOcena
+            })
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -89,16 +95,22 @@ public class ProducentskaKucaController : ControllerBase
             );
         }
 
-        var response = new ProducentskaKucaResponse
+        return Ok(new
         {
             Id = producentskaKuca.Id,
             Naziv = producentskaKuca.Naziv,
-            Filmovi = producentskaKuca.Filmovi
-        };
-
-        return Ok(response);
+            Filmovi = producentskaKuca.Filmovi.Select(x => new
+            {
+                Id = x.Id,
+                Naziv = x.Naziv,
+                Kategorija = x.Kategorija,
+                ProsecnaOcena = x.ProsecnaOcena,
+                BrojOcena = x.BrojOcena
+            })
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [HttpPost("producentske-kuce")]
@@ -126,9 +138,14 @@ public class ProducentskaKucaController : ControllerBase
         _context.ProducentskeKuce.Add(producentskaKuca);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { Id = producentskaKuca.Id }, producentskaKuca);
+        return CreatedAtAction(nameof(GetById), new { Id = producentskaKuca.Id }, new
+        {
+            Id = producentskaKuca.Id,
+            Naziv = producentskaKuca.Naziv
+        });
     }
 
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -164,27 +181,32 @@ public class ProducentskaKucaController : ControllerBase
         return Ok();
     }
 
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet("producentske-kuce/kategorije-i-filmovi")]
-    public ActionResult GetAll()
+    public ActionResult GetKategorijeFilmovi()
     {
         var producentskeKuce = _context.ProducentskeKuce.Include(x => x.Filmovi);
-        var response = new List<ProducentskaKucaBasicResponse>();
+        var response = new List<object>();
         foreach (var p in producentskeKuce)
         {
-            response.Add(new ProducentskaKucaBasicResponse
+            response.Add(new
             {
                 Naziv = p.Naziv,
-                Filmovi = p.Filmovi.Select(x => new FilmBasicResponse
+                Filmovi = p.Filmovi.Select(x => new
                 {
                     Naziv = x.Naziv,
                     Kategorija = x.Kategorija
-                }).ToList()
+                })
             });
         }
 
         return Ok(response);
     }
 
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet("producentske-kuce/{naziv}/filmovi-i-ocene")]
     public async Task<ActionResult> GetFilmoviOcene(string naziv)
     {
