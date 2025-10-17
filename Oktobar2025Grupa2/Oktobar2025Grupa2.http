@@ -1,0 +1,6 @@
+@Oktobar2025Grupa2_HostAddress = http://localhost:5139
+
+GET {{Oktobar2025Grupa2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

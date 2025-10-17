@@ -17,6 +17,53 @@ public class KorisniciController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("korisnici/jmbg/{Jmbg}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetByJmbg(string Jmbg)
+    {
+        var korisnik = await _context.Korisnici
+                                .Include(x => x.Iznajmljivanja)
+                                .ThenInclude(x => x.Automobil)
+                                .FirstOrDefaultAsync(x => x.Jmbg == Jmbg);
+        if (korisnik == null)
+        {
+            return Problem
+            (
+                type: "Not Found",
+                title: "Korisnik ne postoji",
+                detail: "Ne postoji korisnik sa zadatim JMBG-om",
+                statusCode: StatusCodes.Status404NotFound
+            );
+        }
+
+        var response = new KorisnikResponse
+        {
+            Id = korisnik.Id,
+            Ime = korisnik.Ime,
+            Prezime = korisnik.Prezime,
+            Jmbg = korisnik.Jmbg,
+            BrojVozacke = korisnik.BrojVozacke,
+            Iznajmljivanja = korisnik.Iznajmljivanja.Select(x => new KorisnikIznajmljivanjeResponse
+            {
+                Id = x.Id,
+                Automobil = new AutomobilBasicResponse
+                {
+                    Id = x.Automobil!.Id,
+                    Model = x.Automobil.Model,
+                    Kilometraza = x.Automobil.Kilometraza,
+                    Godiste = x.Automobil.Godiste,
+                    BrojSedista = x.Automobil.BrojSedista,
+                    CenaPoDanu = x.Automobil.CenaPoDanu,
+                    TrenutnoIznajmljen = x.Automobil.TrenutnoIznajmljen
+                },
+                BrojDana = x.BrojDana
+            }).ToList()
+        };
+
+        return Ok(response);
+    }
+
     [HttpGet("korisnici/{id}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
