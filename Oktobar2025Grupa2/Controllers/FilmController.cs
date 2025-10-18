@@ -15,6 +15,14 @@ public class FilmController : ControllerBase
         _context = context;
     }
 
+
+    [HttpGet("filmovi/kategorija/{kategorija}")]
+    public ActionResult GetFilmByKategorija(string kategorija)
+    {
+        // var filmovi = _context.Filmovi.Where(x=>x.Kategorija == kategorija).Select(x=>x.Naziv);
+        return Ok(_context.Filmovi.Where(x => x.Kategorija == kategorija).Select(x => x.Naziv));
+    }
+
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

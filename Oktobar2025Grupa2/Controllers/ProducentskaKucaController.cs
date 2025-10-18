@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oktobar2025Grupa2.Models;
@@ -13,6 +14,39 @@ public class ProducentskaKucaController : ControllerBase
     public ProducentskaKucaController(AppDbContext context)
     {
         _context = context;
+    }
+
+    [HttpGet("producentske-kuce/nazivi")]
+    public async Task<ActionResult> GetNames()
+    {
+        return Ok(await _context.ProducentskeKuce.Select(x => x.Naziv).ToListAsync());
+    }
+
+    [HttpGet("producentske-kuce/{naziv}/kategorije")]
+    public async Task<ActionResult> GetKategorije(string naziv)
+    {
+        var producentskaKuca = await _context.ProducentskeKuce
+                                            .Include(x => x.Filmovi)
+                                            .FirstOrDefaultAsync(x => x.Naziv == naziv);
+
+        if (producentskaKuca == null)
+        {
+            return Problem
+            (
+                type: "Not Found",
+                title: "Producentska kuca ne postoji",
+                detail: "Ne postoji producentska kuca sa navedenim nazivom",
+                statusCode: StatusCodes.Status404NotFound
+            );
+        }
+
+        var kategorije = new HashSet<string>();
+        foreach (var film in producentskaKuca.Filmovi)
+        {
+            kategorije.Add(film.Kategorija);
+        }
+
+        return Ok(kategorije.ToList());
     }
 
     [Produces("application/json")]
