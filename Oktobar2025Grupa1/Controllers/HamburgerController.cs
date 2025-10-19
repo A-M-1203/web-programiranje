@@ -14,6 +14,28 @@ public class HamburgerController : ControllerBase
     {
         _context = context;
     }
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("hamburgeri/{nazivProdavnice}")]
+    public ActionResult Get(string nazivProdavnice)
+    {
+        return Ok(_context.Hamburgeri
+                        .Include(x => x.Prodavnica)
+                        .Include(x => x.Sastojci)
+                        .Where(x => x.Prodavnica!.Naziv == nazivProdavnice)
+                        .Select(x => new
+                        {
+                            Id = x.Id,
+                            Naziv = x.Naziv,
+                            Prodat = x.Prodat,
+                            Sastojci = (x.Sastojci == null || x.Sastojci.Count == 0) ?
+                            null : x.Sastojci.Select(x => new
+                            {
+                                Naziv = x.Naziv,
+                                Debljina = x.Debljina
+                            })
+                        }));
+    }
 
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -17,6 +17,38 @@ public class ProdavnicaController : ControllerBase
 
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("prodavnice/nazivi")]
+    public ActionResult GetNazivi()
+    {
+        return Ok(_context.Prodavnice.Select(x => x.Naziv));
+    }
+
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("prodavnice/{nazivProdavnice}/nazivi-hamburgera")]
+    public async Task<ActionResult> GetNaziviHamburgera(string nazivProdavnice)
+    {
+        var prodavnica = await _context.Prodavnice
+                                    .Include(x => x.Hamburgeri)
+                                    .FirstOrDefaultAsync(x => x.Naziv == nazivProdavnice);
+
+        if (prodavnica is null)
+        {
+            return Problem
+            (
+                type: "Not Found",
+                title: "Prodavnica ne postoji",
+                detail: "Prodavnica sa navedenim nazivom ne postoji",
+                statusCode: StatusCodes.Status404NotFound
+            );
+        }
+
+        return Ok(prodavnica.Hamburgeri.Select(x => x.Naziv));
+    }
+
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet("prodavnice")]
     public ActionResult GetAll()
     {

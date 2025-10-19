@@ -18,9 +18,9 @@ public class SastojakController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet("sastojci")]
-    public async Task<ActionResult> GetAll()
+    public ActionResult GetAll()
     {
-        return Ok(await _context.Sastojci.Select(x => x.Naziv).ToListAsync());
+        return Ok(_context.Sastojci.Select(x => x.Naziv));
     }
 
     [Produces("application/json")]
