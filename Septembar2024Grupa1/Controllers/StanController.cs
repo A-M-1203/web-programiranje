@@ -6,6 +6,7 @@ using Septembar2024Grupa1.Requests;
 namespace Septembar2024Grupa1.Controllers;
 
 [ApiController]
+[Route("api")]
 public class StanController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
