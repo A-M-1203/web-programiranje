@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Septembar2024Grupa1.Models;
@@ -78,5 +79,31 @@ public class StanController : ControllerBase
         _dbContext.Stanovi.Add(stan);
         await _dbContext.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { Id = stan.Id }, stan);
+    }
+
+    [HttpGet("stanovi/{id}/troskovi")]
+    public async Task<ActionResult> VratiUkupneNeizmireneTroskove(int id)
+    {
+        var stan = await _dbContext.Stanovi
+                                .Include(x => x.Racuni)
+                                .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (stan is null)
+        {
+            return NotFound("Ne postoji stan sa navedenim Id-jem");
+        }
+
+        int ukupniNeizmireniTroskovi = 0;
+        foreach (var racun in stan.Racuni)
+        {
+            if (racun.Placen == false)
+            {
+                ukupniNeizmireniTroskovi += racun.CenaStruje;
+                ukupniNeizmireniTroskovi += racun.CenaVode;
+                ukupniNeizmireniTroskovi += racun.CenaKomunalija;
+            }
+        }
+
+        return Ok(ukupniNeizmireniTroskovi);
     }
 }

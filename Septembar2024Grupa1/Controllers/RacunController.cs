@@ -37,6 +37,11 @@ public class RacunController : ControllerBase
             );
         }
 
+        if (stan.Racuni.Any(x => x.MesecIzdavanja == request.MesecIzdavanja))
+        {
+            return BadRequest("Navedeni stan vec ima racun za ovaj mesec");
+        }
+
         var racun = new Racun
         {
             Stan = stan,
