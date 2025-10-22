@@ -26,6 +26,18 @@ body {
 
 .proizvod-info-container {
   min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+}
+
+.info-labels {
+  color: rgb(204, 86, 86);
+}
+
+.info-values {
+  font-weight: 600;
 }
 
 .proizvodi-cards-container {
@@ -84,4 +96,31 @@ body {
 
 .korpa-container {
   min-width: 350px;
+}
+
+.korpa-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  border: 1px solid #000;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.item-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.naruci-btn-container {
+  display: flex;
+  margin-top: 30px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.naruci-btn-container button {
+  flex-grow: 1;
 }
