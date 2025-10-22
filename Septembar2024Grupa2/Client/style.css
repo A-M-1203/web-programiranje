@@ -1,0 +1,87 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: gray;
+}
+
+.select-kategorija-container {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.select-kategorija {
+  flex-grow: 1;
+}
+
+.store-container {
+  display: flex;
+  gap: 10px;
+}
+
+.proizvod-info-container {
+  min-width: 350px;
+}
+
+.proizvodi-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.proizvod-card {
+  border: 2px solid #000;
+  border-radius: 20px;
+  padding-top: 20px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 5px;
+  flex-basis: 300px;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.proizvod-card-clicked {
+  background-color: rgb(34, 192, 34);
+}
+
+.proizvodi-labels-values-container {
+  display: flex;
+  gap: 10px;
+}
+
+.labels-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.values-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.values-container label {
+  font-weight: 700;
+}
+
+.kupi-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  height: 30px;
+}
+
+.kupi-btn-container button {
+  flex-grow: 0.5;
+}
+
+.korpa-container {
+  min-width: 350px;
+}
